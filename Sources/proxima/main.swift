@@ -6,31 +6,91 @@ func runLongRunningTask(_ delay: UInt32, _ label: String) async -> String {
     return label
 }
 
-print("Before semaphore")
+// func simpleHandler(_ input: String) -> String {
+//     return "Handled \(input)"
+// }
+
 let group = DispatchGroup()
-// let semaphore = DispatchSemaphore(value: 2)
-print("After semaphore")
 
-group.enter(2)
-// group.enter()
+group.enter(1)
 
 Task {
-    print("Started task 1")
-    let result = await runLongRunningTask(2, "test1")
-    print(result)
+    let results = await concurrentMap(
+        ["foo", "bar"]
+    ) { input -> String in
+        print("Handling \(input)...")
+        sleep(2)
+        print("Handled \(input)")
+        return "Handled \(input)"
+    }
+    print(results)
     group.leave()
 }
 
-Task {
-    print("Started task 2")
-    let result = await runLongRunningTask(3, "test2")
-    print(result)
-    group.leave()
-}
-
-// sleep(1)
 group.wait()
 
+
+// print(results)
+// 
+// print("Before semaphore")
+// let group = DispatchGroup()
+// // let semaphore = DispatchSemaphore(value: 2)
+// print("After semaphore")
+
+// group.enter(2)
+// group.enter()
+
+// TaskGroup().async() {
+//     print("ok")
+// }
+
+// var ok = [String]()
+
+// Task {
+//     await withTaskGroup(of: String.self) { tgroup in 
+//         for input in ["foo", "bar"] {
+//             let value = tgroup.addTask {
+//                 sleep(1)
+//                 print(input)
+//                 group.leave()
+//                 return "handled \(input)"
+//                 // do work and return something
+//             }
+//             print(value)
+//         }
+
+//         var results = [String]()
+
+//         for await result in tgroup {
+//             results.append(result)
+//         }
+
+//         print(results)
+
+//         ok = results
+//     }
+// }
+
+
+
+// Task {
+//     print("Started task 1")
+//     let result = await runLongRunningTask(2, "test1")
+//     print(result)
+//     group.leave()
+// }
+
+// Task {
+//     print("Started task 2")
+//     let result = await runLongRunningTask(3, "test2")
+//     print(result)
+//     group.leave()
+// }
+
+// sleep(1)
+// group.wait()
+// sleep(1)
+// print(ok)
 
 // print("Compute sphere volume using z-axis + polar coordinates:")
 // print()
