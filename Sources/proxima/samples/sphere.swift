@@ -59,3 +59,28 @@ public func computeSphereVolumeUsingCartesianSystem(_ r: Double, precision: Int 
         kind: kind
     )
 }
+
+public func computeSphereVolumeUsingCartesianSystemWithConcurrency(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right, nParts: Int = 10) async -> Double {
+    let results = await concurrentMap(
+        splitInterval(from: 0.0, to: r, nParts: nParts)
+    ) { interval -> Double in
+        // print("Handling interval \(interval)...")
+        let result = 4.0 * integrate( { (x: Double) -> Double in
+                return computeElementarySphereSquare(
+                    r,
+                    x: x,
+                    precision: precision,
+                    kind: kind
+                )
+            },
+            from: interval.from,
+            to: interval.to,
+            precision: precision / nParts,
+            kind: kind
+        )
+        // print("Handled interval \(interval)")
+        return result
+    }
+    
+    return results.reduce(0, +)
+}

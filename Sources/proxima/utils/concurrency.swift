@@ -21,43 +21,75 @@ actor SynchronisedCollection<Item> {
     }
 }
 
-public func concurrentMap<InputType, OutputType>(_ inputs: Array<InputType>, handler: @escaping (InputType) -> OutputType) async -> Array<OutputType> {
-    let externallyAvailableResults = SynchronisedCollection<OutputType>() // [OutputType]()
-    // let lock = NSLock()
-    // let dispatchGroup = DispatchGroup()
+actor OptionalSemaphore {
+    // public var semaphore: DispatchSemaphore?
+    // public let nWorkers: Int?
+    public var nFreeWorkers: Int
 
-    // dispatchGroup.enter(inputs.count)
-
-    // Task {
-        // for item in inputs {
-        //     await externallyAvailableResults.append(handler(item))
-        //     dispatchGroup.leave()
+    public init(_ nWorkers: Int? = .none) {
+        // if let nWorkers_ = nWorkers {
+        //     self.nWorkers = nWorkers_
+        //     self.semaphore = DispatchSemaphore(value: nWorkers_)
+        // } else {
+        //     self.nWorkers = .none
+        //     self.semaphore = .none
         // }
+        nFreeWorkers = nWorkers ?? -1
+    }
+    
+    func wait() {
+        while self.nFreeWorkers < 1 {
+            sleep(1)
+        }
+        nFreeWorkers -= 1
+        // if let semaphore_ = semaphore {
+        //     print("waiting for semaphore")
+        //     semaphore_.wait()
+        //     print("got semaphore")
+        // }
+    }
+
+    func signall() {
+        nFreeWorkers += 1
+        // print("attempting to release")
+        // if let semaphore_ = semaphore {
+        //     print("releasing semaphore")
+        //     semaphore_.signal()
+        //     print("released semaphore")
+        // }
+    }
+}
+
+public func concurrentMap<InputType, OutputType>(_ inputs: Array<InputType>, handler: @escaping (InputType) -> OutputType) async -> Array<OutputType> { // nWorkers: Int? = .none
+    let externallyAvailableResults = SynchronisedCollection<OutputType>()
+    // let semaphore = OptionalSemaphore(nWorkers) // Doesn't work
+    // var semaphore: DispatchSemaphore? = .none
+    // if let nWorkers_ = nWorkers {
+    //     semaphore = DispatchSemaphore(value: nWorkers_)
+    // }
+
     await withTaskGroup(of: OutputType.self) { taskGroup in 
         for input in inputs {
             let value = taskGroup.addTask {
-                // let result = handler(input)
-                // dispatchGroup.leave()
-                return handler(input)
+                // if let semaphore_ = semaphore {
+                //     semaphore_.wait()
+                // }
+                // await semaphore.wait()
+                let result = handler(input)
+                // print("before attempting to release")
+                // await semaphore.signall()
+                // if let semaphore_ = await semaphore.semaphore {
+                //     print("ok")
+                // }
+                // print("after attempting to release")
+                return result
             }
         }
 
-        // var results = [OutputType]()
-
         for await result in taskGroup {
-            // results.append(result)
             await externallyAvailableResults.append(result)
         }
-
-        // externallyAvailableResults = results
-        // for element in results {
-        //     await externallyAvailableResults.append(element)
-        // }
     }
-    // }
-
-
-    // dispatchGroup.wait()
 
     return await externallyAvailableResults.items // [OutputType]() // externallyAvailableResults
 
