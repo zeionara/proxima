@@ -58,55 +58,29 @@ import Foundation
 //     )
 // }
 
-public func computeCircleSquare(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) -> Double {
-    return 2.0 * integrate( { (fi: Double) -> Double in
-            return r
-        },
-        from: 0,
-        to: Double.pi,
-        precision: precision,
-        kind: kind
-    )
-}
+
 
 // print(computeCircleSquare(2.0, precision: 100, kind: .left))
 // print(computeCircleSquare(2.0, precision: 100, kind: .mean))
 // print(computeCircleSquare(2.0, precision: 100, kind: .right))
 // print(computeElementarySquare(0.2, 0.3))
 
-public func computeSphereVolume(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) -> Double {
-    return integrate( { (x: Double) -> Double in
-            let difference = r*r - x*x
-            let sqrt = difference > 0 ? difference.squareRoot() : 0
-            // print(difference, sqrt)
-            return 2.0 * computeCircleSquare(
-                sqrt,
-                precision: precision,
-                kind: kind
-            )
-        },
-        from: 0,
-        to: r,
-        precision: precision,
-        kind: kind
-    )
-}
 
-public func traceExecutionTime<Type>(_ label: String, _ function: () -> Type) -> Type {
-    let start = DispatchTime.now()
-    let result = function()
-    let end = DispatchTime.now()
-    let nSeconds = Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000_000
-    print("\(label) has completed in \(String(format: "%.3f", nSeconds)) seconds")
-    return result
-}
+
+
 
 // print(computeSphereVolume(2.0, kind: .left))
 // print(computeSphereVolume(2.0, kind: .mean))
 // print(computeSphereVolume(2.0, kind: .right))
 
 print(
-    traceExecutionTime("sphere volume computation") {
-        computeSphereVolume(2.0, precision: 10000, kind: .right)
+    traceExecutionTime("sphere volume computation (z-axis + polar coordinates)") {
+        computeSphereVolume(2.0, precision: 1000, kind: .right)
+    }
+)
+
+print(
+    traceExecutionTime("sphere volume computation (cartesian)") {
+        computeSphereVolumeUsingCartesianSystem(2.0, precision: 1000, kind: .right)
     }
 )
