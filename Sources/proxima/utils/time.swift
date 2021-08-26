@@ -21,11 +21,15 @@ public func traceExecutionTimeAndAbsoluteError(_ label: String, ref referenceVal
     }
 }
 
-public func testPerformanceAndPrecision(min minPrecision: Int, max maxPrecision: Int, step: Int, label: String, ref referenceValue: Double, function: (Int) async -> Double) async {
+public func testPerformanceAndPrecision(min minPrecision: Int, max maxPrecision: Int, step: Int, label: String, ref referenceValue: Double, function: (Int) async -> Double) async -> [Double] {
+    var result = [Double]()
     for precision in stride(from: minPrecision, to: maxPrecision + 1, by: step) {
         print("precision = \(precision)")
-        await traceExecutionTimeAndAbsoluteError(label, ref: referenceValue) {
-            await function(precision)
-        }
+        result.append(
+            await traceExecutionTimeAndAbsoluteError(label, ref: referenceValue) {
+                return await function(precision)
+            }
+        )
     }
+    return result
 }
