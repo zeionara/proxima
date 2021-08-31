@@ -2,6 +2,8 @@
 
 An exploratory project for accelerating quantum systems simulation by performing approximate computations via artificial intelligence methods.
 
+![electron-positions](images/electron-positions.png)
+![n-electrons-histogram](images/n-electrons-histogram.png)
 ![x-expectation-value-c-based-plot](images/x-expectation-value-c-based-plot.png)
 ![x-expectation-value-n-based-plot](images/x-expectation-value-n-based-plot.png)
 
