@@ -20,18 +20,24 @@ func uniform(from: Double, to: Double, kind: GeneratorKind = .ceil) -> (Double) 
     return _uniform
 }
 
-let getDensity = uniform(from: 2.0, to: 4.0)
+// let getDensity = uniform(from: 2.0, to: 4.0)
 
+let wellModel = OneDimensionalPotentialWellAnalyticModel(length: 5)
+let wavefunction = wellModel.getWaveFunction(n: 2)
 
-let samples = (0..<100).map{x in
-    random(
-        getDensity,
-        from: 0.0,
-        to: 10.0,
-        precision: 10000
+let samples = (0..<1000).map{x in
+    print(
+        random(
+            { (x: Double) -> Double in
+                wavefunction(x) ** 2
+            },
+            from: 0.0,
+            to: 10.0,
+            precision: 10000
+        )
     )
 }
-print(samples)
+// print(samples)
 
 // for x in stride(from: 0.0, through: 10.0, by: 0.01) {
 
