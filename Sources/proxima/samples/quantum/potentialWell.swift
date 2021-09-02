@@ -1,4 +1,5 @@
 import Foundation
+import nest
 
 public typealias OneDimensionalSpacialWavefunction = (_ x: Double) -> Double
 
@@ -25,5 +26,55 @@ public struct OneDimensionalPotentialWellAnalyticModel {
         }
 
         return wavefunction
+    }
+
+    public func sample(_ nSamples: Int, n: Int = 1, from: Double = 0.0, to: Double? = .none, precision: Int = 10000) -> [Double] {
+        let wavefunction = getWaveFunction(n: n)
+
+        return (0..<nSamples).map{x in
+            return Double.random(
+                { (x: Double) -> Double in
+                    wavefunction(x) ** 2
+                },
+                from: from,
+                to: to ?? a,
+                precision: precision
+            )
+        }
+    }
+
+    public func sample(_ nSamples: Int, nParts: Int, n: Int = 1, from: Double = 0.0, to: Double? = .none, precision: Int = 10000) async -> [Double] {
+        assert(nParts > 1)
+        
+        var inputs = [Int]()
+        let nSamplesPerPart = nSamples / nParts
+        for i in 0..<nParts - 1 {
+            inputs.append(nSamplesPerPart)
+        }
+        inputs.append(nSamplesPerPart + (nSamples - nSamplesPerPart * nParts))
+
+        
+        // let samples = []
+        // for sampleSet in await concurrrentMap(
+        //     inputs
+        // ) { (nSamples: Int) in
+        //     sample(
+        //         nSamples, n: n, from: from, to: to, precision: precision
+        //     )
+        // } {
+        //     for sample in sampleSet {
+        //         samples.append(sample)
+        //     }
+        // }
+
+        return Array.chain(
+            await concurrentMap(
+                inputs
+            ) { (nSamples: Int) in
+                sample(
+                    nSamples, n: n, from: from, to: to, precision: precision
+                )
+            }
+        )
     }
 }

@@ -1,42 +1,37 @@
 import nest
 import Foundation
 
+print(
+    OneDimensionalPotentialWellAnalyticModel(length: 5).sample(10)
+)
+
+BlockingTask {
+    print(
+        await OneDimensionalPotentialWellAnalyticModel(length: 5).sample(10, nParts: 3)
+    )
+}
 
 // for x in stride(from: 0.0, through: wellModel.a, by: 0.01) {
 //     print("Ψ(\(x)) = \(waveFunction(x))")
 // }
 
-func uniform(from: Double, to: Double, kind: GeneratorKind = .ceil) -> (Double) -> Double {
-    func _uniform(x: Double) -> Double {
-        if (
-            ((kind == .ceil) && (x > from) && (x <= to)) || 
-            ((kind == .floor) && (x >= from) && (x < to))
-        ) {
-            return 1 / (to - from)
-        }
-        return 0.0
-    }
-    
-    return _uniform
-}
-
 // let getDensity = uniform(from: 2.0, to: 4.0)
 
-let wellModel = OneDimensionalPotentialWellAnalyticModel(length: 5)
-let wavefunction = wellModel.getWaveFunction(n: 2)
+// let wellModel = OneDimensionalPotentialWellAnalyticModel(length: 5)
+// let wavefunction = wellModel.getWaveFunction(n: 2)
 
-let samples = (0..<1000).map{x in
-    print(
-        random(
-            { (x: Double) -> Double in
-                wavefunction(x) ** 2
-            },
-            from: 0.0,
-            to: 10.0,
-            precision: 10000
-        )
-    )
-}
+// let samples = (0..<1000).map{x in
+//     print(
+//         Double.random(
+//             { (x: Double) -> Double in
+//                 wavefunction(x) ** 2
+//             },
+//             from: 0.0,
+//             to: 10.0,
+//             precision: 10000
+//         )
+//     )
+// }
 // print(samples)
 
 // for x in stride(from: 0.0, through: 10.0, by: 0.01) {

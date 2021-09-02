@@ -1,4 +1,4 @@
-// import Foundation
+import Foundation
 
 // extension DispatchGroup {
 //     public func enter(_ nWorkers: Int) {
@@ -115,3 +115,15 @@
     
 //     // return results
 // }
+
+public func BlockingTask(apply closure: @escaping () async -> Void) -> Void {
+    let group = DispatchGroup()
+    group.enter(1)
+
+    Task {
+        await closure()
+        group.leave()
+    }
+
+    group.wait()
+}
