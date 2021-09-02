@@ -33,3 +33,11 @@ public func testPerformanceAndPrecision(min minPrecision: Int, max maxPrecision:
     }
     return result
 }
+
+public func measureExecutionTime(_ label: String, apply closure: @escaping () -> Void) {
+    let start = DispatchTime.now()
+    closure()
+    let end = DispatchTime.now()
+    let nSeconds = Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000_000
+    print("Completed \(label) in \(String(format: "%.3f", nSeconds)) seconds")
+}
