@@ -2,8 +2,8 @@ import nest
 
 // 1st approach - use z axis and angle
 
-public func computeCircleSquare(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) -> Double {
-    return 2.0 * integrate( { (fi: Double) -> Double in
+public func computeCircleSquare(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
+    let partialSum = await integrate( { (fi: Double) -> Double in
             return r
         },
         from: 0,
@@ -11,13 +11,14 @@ public func computeCircleSquare(_ r: Double, precision: Int = 10000, kind: Integ
         precision: precision,
         kind: kind
     )
+    return 2.0 * partialSum
 }
 
-public func computeSphereVolume(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) -> Double {
-    return 2.0 * integrate( { (x: Double) -> Double in
+public func computeSphereVolume(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
+    let partialSum = await integrate( { (x: Double) -> Double in
             let difference = r*r - x*x
             let sqrt = difference > 0 ? difference.squareRoot() : 0
-            return computeCircleSquare(
+            return await computeCircleSquare(
                 sqrt,
                 precision: precision,
                 kind: kind
@@ -28,12 +29,13 @@ public func computeSphereVolume(_ r: Double, precision: Int = 10000, kind: Integ
         precision: precision,
         kind: kind
     )
+    return 4.0 * partialSum
 }
 
 // 2nd approach - use x and y coordinates
 
-public func computeElementarySphereSquare(_ r: Double, x: Double, precision: Int = 10000, kind: IntegralKind = .right) -> Double {
-    return 2.0 * integrate( { (y: Double) -> Double in
+public func computeElementarySphereSquare(_ r: Double, x: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
+    let partialSum = await integrate( { (y: Double) -> Double in
             let value = r*r - (x*x + y*y)
             return value > 0 ? value.squareRoot() : 0.0 
         },
@@ -42,11 +44,12 @@ public func computeElementarySphereSquare(_ r: Double, x: Double, precision: Int
         precision: precision,
         kind: kind
     )
+    return 2.0 * partialSum
 }
 
-public func computeSphereVolumeUsingCartesianSystem(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) -> Double {
-    return 4.0 * integrate( { (x: Double) -> Double in
-            return computeElementarySphereSquare(
+public func computeSphereVolumeUsingCartesianSystem(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
+    let partialSum = await integrate( { (x: Double) -> Double in
+            return await computeElementarySphereSquare(
                 r,
                 x: x,
                 precision: precision,
@@ -58,11 +61,12 @@ public func computeSphereVolumeUsingCartesianSystem(_ r: Double, precision: Int 
         precision: precision,
         kind: kind
     )
+    return 4.0 * partialSum
 }
 
 public func computeSphereVolumeUsingCartesianSystemWithConcurrency(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right, nParts: Int = 10) async -> Double {
     return await 4.0 * integrate( { (x: Double) -> Double in
-            return computeElementarySphereSquare(
+            return await computeElementarySphereSquare(
                 r,
                 x: x,
                 precision: precision,
@@ -99,8 +103,8 @@ public func computeSphereVolumeUsingCartesianSystemWithConcurrency(_ r: Double, 
     // return results.reduce(0, +)
 }
 
-public func computeSphereVolumeViaExplicitMultivariateIntegration(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) -> Double {
-    return 8 * integrate(
+public func computeSphereVolumeViaExplicitMultivariateIntegration(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
+    let partialSum = await integrate(
         { (x: [Double]) -> Double in
             let squaredValue = r*r - (x.first!*x.first! + x.last!*x.last!)
             return squaredValue > 0 ? squaredValue.squareRoot() : 0.0 
@@ -108,8 +112,10 @@ public func computeSphereVolumeViaExplicitMultivariateIntegration(_ r: Double, p
         from: [0.0, 0.0],
         to: [r, r],
         precision: precision,
-        kind: kind
+        kind: kind,
+        nParts: 2
     )
+    return 8 * partialSum
     // let results = await concurrentMap(
     //     splitInterval(from: 0.0, to: r, nParts: nParts)
     // ) { interval -> Double in
