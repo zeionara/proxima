@@ -34,10 +34,18 @@ public func testPerformanceAndPrecision(min minPrecision: Int, max maxPrecision:
     return result
 }
 
-public func measureExecutionTime(_ label: String, apply closure: @escaping () -> Void) {
+public func measureExecutionTime(_ label: String, apply closure: @escaping () async -> String?, accuracy: Int = 3) {
+    let group = DispatchGroup()
+    group.enter(1)
     let start = DispatchTime.now()
-    closure()
-    let end = DispatchTime.now()
-    let nSeconds = Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000_000
-    print("Completed \(label) in \(String(format: "%.3f", nSeconds)) seconds")
+
+    Task {
+        let closureExecutionResult = await closure()
+        let end = DispatchTime.now()
+        let nSeconds = Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000_000
+        print("Completed \(label) in \(String(format: "%.\(accuracy)f", nSeconds)) seconds" + (closureExecutionResult ?? ""))
+        group.leave()
+    }
+
+    group.wait()
 }
