@@ -3,7 +3,7 @@ import nest
 // 1st approach - use z axis and angle
 
 public func computeCircleSquare(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
-    let partialSum = await integrate( { (fi: Double) -> Double in
+    let partialSum: Double = await Double.integrate( { (fi: Double) -> Double in
             return r
         },
         from: 0,
@@ -15,7 +15,7 @@ public func computeCircleSquare(_ r: Double, precision: Int = 10000, kind: Integ
 }
 
 public func computeSphereVolume(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
-    let partialSum = await integrate( { (x: Double) -> Double in
+    let partialSum: Double = await Double.integrate( { (x: Double) -> Double in
             let difference = r*r - x*x
             let sqrt = difference > 0 ? difference.squareRoot() : 0
             return await computeCircleSquare(
@@ -35,7 +35,7 @@ public func computeSphereVolume(_ r: Double, precision: Int = 10000, kind: Integ
 // 2nd approach - use x and y coordinates
 
 public func computeElementarySphereSquare(_ r: Double, x: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
-    let partialSum = await integrate( { (y: Double) -> Double in
+    let partialSum: Double = await Double.integrate( { (y: Double) -> Double in
             let value = r*r - (x*x + y*y)
             return value > 0 ? value.squareRoot() : 0.0 
         },
@@ -48,7 +48,7 @@ public func computeElementarySphereSquare(_ r: Double, x: Double, precision: Int
 }
 
 public func computeSphereVolumeUsingCartesianSystem(_ r: Double, precision: Int = 10000, kind: IntegralKind = .right) async -> Double {
-    let partialSum = await integrate( { (x: Double) -> Double in
+    let partialSum: Double = await Double.integrate( { (x: Double) -> Double in
             return await computeElementarySphereSquare(
                 r,
                 x: x,

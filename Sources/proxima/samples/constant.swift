@@ -5,5 +5,5 @@ public func computeConstantFunctionIntegral(constant: Double, from firstValue: D
         return constant
     }
 
-    return await integrate(constantFunction, from: firstValue, to: lastValue, precision: precision, kind: kind)
+    return await Double.integrate(constantFunction, from: firstValue, to: lastValue, precision: precision, kind: kind)
 }
