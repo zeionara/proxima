@@ -5,6 +5,15 @@ import Foundation
 //     OneDimensionalPotentialWellAnalyticModel(length: 5).sample(10)
 // )
 
+// let foo = TwoDimensionalElectronPosition(x: 2.0, y: 5.0)
+// let bar = TwoDimensionalElectronPosition(x: 3.0, y: 4.0)
+
+// let bundle = DataBundle([foo, bar])
+
+// print(bundle.asTsv)
+
+// bundle.toTsv("assets/corpora/2d-electron-positions/data.tsv")
+
 BlockingTask {
     measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5) {
         // print(
@@ -31,12 +40,16 @@ BlockingTask {
         // )
 
         // print(randomizationResult)
-        let samples = await wellModel.getSamples(1000, nParts: 10, precision: 1000)
-        
-        print("x\ty")
-        for sample in samples {
-            print("\(String(format: "%.5f", sample.first!))\t\(String(format: "%.5f", sample.last!))")
+        let samples = await wellModel.getSamples(100, nParts: 10, precision: 1000).map{
+            TwoDimensionalElectronPosition(x: $0.first!, y: $0.last!)
         }
+
+        DataBundle(samples).toTsv("assets/corpora/2d-electron-positions/data.tsv")
+        
+        // print("x\ty")
+        // for sample in samples {
+            // print("\(String(format: "%.5f", sample.first!))\t\(String(format: "%.5f", sample.last!))")
+        // }
 
         // print(getProbability([1.0, 2.5]))
         return nil
