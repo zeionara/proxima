@@ -7,6 +7,7 @@ let package = Package(
     name: "proxima",
     dependencies: [
         .package(url: "https://github.com/zeionara/nest.git", branch: "master")
+        .package(url: "https://github.com/paiv/swift-pcg-random.git", .upToNextMajor(from: "1.0.0"))
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
     ],
@@ -16,7 +17,8 @@ let package = Package(
         .executableTarget(
             name: "proxima",
             dependencies: [
-                .product(name: "nest", package: "nest")
+                .product(name: "nest", package: "nest"),
+                .product(name: "PcgRandom", package: "swift-pcg-random")
             ]
         ),
         .testTarget(
