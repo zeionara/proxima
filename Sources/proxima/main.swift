@@ -5,14 +5,46 @@ import Foundation
 //     OneDimensionalPotentialWellAnalyticModel(length: 5).sample(10)
 // )
 
-let foo = TwoDimensionalElectronPosition(x: 2.0, y: 5.0)
-let bar = TwoDimensionalElectronPosition(x: 3.0, y: 4.0)
+// let foo = TwoDimensionalElectronPosition(x: 2.0, y: 5.0)
+// let bar = TwoDimensionalElectronPosition(x: 3.0, y: 4.0)
 
-let bundle = DataBundle([foo, bar])
+// let bundle = DataBundle([foo, bar])
 
-print(TwoDimensionalElectronPositionDataFrame(bundle).asTsv)
+// print(TwoDimensionalElectronPositionDataFrame(bundle).asTsv)
 
 // bundle.toTsv("assets/corpora/2d-electron-positions/data.tsv")
+
+struct RandomNumberGeneratorWithSeed: RandomNumberGenerator {
+    public var inverse: Bool
+    
+    init(seed: Int, inverse: Bool = true) {
+        self.inverse = inverse // if inverse == false then returned results are not exceptionally different from each other
+        srand48(seed)
+    }
+    
+    func next() -> UInt64 {
+        let number = drand48()
+        print(number)
+        // print("Input number: ", number)
+        let result = withUnsafeBytes(of: number) { bytes -> UInt64 in
+            if inverse {
+                let bytt: [UInt8] = Array(bytes)
+                print(bytes)
+                print(bytt)
+                return UnsafeRawPointer(bytt).assumingMemoryBound(to: UInt64.self).pointee.bigEndian
+            }
+            let loadedBytes = bytes.load(as: UInt64.self)
+            return loadedBytes
+        }
+        // print(result)
+        return result
+    }
+}
+
+var generator = RandomNumberGeneratorWithSeed(seed: 1001)
+for _ in 0..<1 {
+    print(Double.random(in: 0...1, using: &generator))
+}
 
 // BlockingTask {
 //     measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5) {
@@ -40,11 +72,11 @@ print(TwoDimensionalElectronPositionDataFrame(bundle).asTsv)
 //         // )
 
 //         // print(randomizationResult)
-//         let samples = await wellModel.getSamples(100, nParts: 10, precision: 1000).map{
+//         let samples = await wellModel.getSamples(10, nParts: 10, precision: 100).map{
 //             TwoDimensionalElectronPosition(x: $0.first!, y: $0.last!)
 //         }
 
-//         DataBundle(samples).toTsv("assets/corpora/2d-electron-positions/data.tsv")
+//         print(DataBundle(samples).asTsv) // .toTsv("assets/corpora/2d-electron-positions/data.tsv")
         
 //         // print("x\ty")
 //         // for sample in samples {
