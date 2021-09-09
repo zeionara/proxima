@@ -1,5 +1,6 @@
 import Foundation
 import nest
+import PcgRandom
 
 public typealias OneDimensionalSpacialWavefunction = (_ x: Double) -> Double
 public typealias TwoDimensionalSpacialWavefunction = (_ x: Double, _ y: Double) -> Double
@@ -44,9 +45,12 @@ public struct OneDimensionalPotentialWellAnalyticModel {
     //     }
     // }
 
-    public func getSamples(_ nSamples: Int, nParts: Int, n: Int = 1, from: Double = 0.0, to: Double? = .none, precision: Int = 10000) async -> [Double] {
+    public func getSamples(
+        _ nSamples: Int, nParts: Int, n: Int = 1, from: Double = 0.0, to: Double? = .none, precision: Int = 10000,
+        seed: Int
+    ) async -> [Double] {
         let wavefunction = getWaveFunction(n: n)
-        
+
         return await sample(
             { (x: Double) -> Double in
                 wavefunction(x) ** 2
@@ -55,7 +59,8 @@ public struct OneDimensionalPotentialWellAnalyticModel {
             nParts: nParts,
             from: from,
             to: to ?? a,
-            precision: precision
+            precision: precision,
+            seed: seed
         )
         // assert(nParts > 1)
         
@@ -150,10 +155,10 @@ public struct TwoDimensionalPotentialWellAnalyticModel {
     // }
 
     public func getSamples(_ nSamples: Int, nParts: Int, n1: Int = 1, n2: Int = 1,
-        from: [Double] = [0.0, 0.0], to: [Double]? = .none, precision: Int = 10000
+        from: [Double] = [0.0, 0.0], to: [Double]? = .none, precision: Int = 10000, seed: Int
     ) async -> [[Double]] {
         let wavefunction = getWaveFunction(n1: n1, n2: n2)
-        
+
         return await sample(
             { (x: [Double]) -> Double in
                 wavefunction(x.first!, x.last!) ** 2
@@ -162,7 +167,9 @@ public struct TwoDimensionalPotentialWellAnalyticModel {
             nParts: nParts,
             from: from,
             to: to ?? [a1, a2],
-            precision: precision
+            precision: precision,
+            seed: seed
+            // generator: generator
         )
     }
 }
