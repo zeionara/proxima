@@ -171,5 +171,8 @@ public struct TwoDimensionalPotentialWellAnalyticModel {
             seed: seed
             // generator: generator
         )
+        //  {
+        //     return DefaultSeedableRandomNumberGenerator($0)
+        // }
     }
 }

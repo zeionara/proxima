@@ -34,7 +34,7 @@ public func testPerformanceAndPrecision(min minPrecision: Int, max maxPrecision:
     return result
 }
 
-public func measureExecutionTime(_ label: String, apply closure: @escaping () async -> String?, accuracy: Int = 3) {
+public func measureExecutionTime(_ label: String, accuracy: Int = 3, apply closure: @escaping () async -> String?) {
     let group = DispatchGroup()
     group.enter(1)
     let start = DispatchTime.now()

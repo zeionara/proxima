@@ -1,6 +1,6 @@
 import nest
 import Foundation
-import PcgRandom
+// import PcgRandom
 
 // print(
 //     OneDimensionalPotentialWellAnalyticModel(length: 5).sample(10)
@@ -81,7 +81,7 @@ BlockingTask {
         //     generatorKind: .ceil
         // )
 
-        let generator = Pcg64Random(seed: 16)
+        // let generator = Pcg64Random(seed: 16)
         // print(randomizationResult)
         let samples = await wellModel.getSamples(10, nParts: 10, precision: 100, seed: 17).map{
             TwoDimensionalElectronPosition(x: $0.first!, y: $0.last!)
