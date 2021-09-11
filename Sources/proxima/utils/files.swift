@@ -30,6 +30,7 @@ public func makeSureParentFoldersExist(_ path: String) throws {
 
 public func makeSureFileExists(_ url: URL, recreate: Bool = false) {
     do {
+        print("Check file exists, recreate = \(recreate)")
         if (!FileManager.default.fileExists(atPath: url.path) || recreate) {
             try Data("".utf8).write(to: url)
         }
@@ -39,7 +40,7 @@ public func makeSureFileExists(_ url: URL, recreate: Bool = false) {
 }
 
 
-public func makeSureFileExists(_ path: String) {
+public func makeSureFileExists(_ path: String, recreate: Bool = false) {
     do{
         try makeSureParentFoldersExist(path)
     } catch {
@@ -47,7 +48,7 @@ public func makeSureFileExists(_ path: String) {
     }
     
     if let fileURL = URL.local(path) { 
-        makeSureFileExists(fileURL)
+        makeSureFileExists(fileURL, recreate: recreate)
     } else {
         print("Cannot make sure that file \(path) exists because given path is not correct")
     }

@@ -198,14 +198,6 @@ public func measureExecutionTime(_ label: String, accuracy: Int = 3, apply closu
     let group = DispatchGroup()
     group.enter(1)
     let start = DispatchTime.now()
-    LoggingSystem.bootstrap{ label in
-        MultiplexLogHandler(
-            [
-                FileLogHandler(level: .trace, label: label, path: "assets/logs/foo.txt"),
-                StreamLogHandler.standardOutput(label: label)
-            ]
-        )
-    }
 
     Task {
         let logger = Logger(level: .trace, label: "execution-time-measuring")

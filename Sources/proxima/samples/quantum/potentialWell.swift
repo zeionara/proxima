@@ -156,23 +156,37 @@ public struct TwoDimensionalPotentialWellAnalyticModel {
     // }
 
     public func getSamples(_ nSamples: Int, nParts: Int, n1: Int = 1, n2: Int = 1,
-        from: [Double] = [0.0, 0.0], to: [Double]? = .none, precision: Int = 10000, seed: Int
+        from: [Double] = [0.0, 0.0], to: [Double]? = .none, precision: Int = 10000, seed: Int? = nil
     ) async -> [[Double]] {
         let wavefunction = getWaveFunction(n1: n1, n2: n2)
 
-        return await sample(
-            { (x: [Double]) -> Double in
-                wavefunction(x.first!, x.last!) ** 2
-            },
-            nSamples,
-            nParts: nParts,
-            from: from,
-            to: to ?? [a1, a2],
-            precision: precision,
-            seed: seed,
-            logger: Logger(label: "Sampler")
-            // generator: generator
-        )
+        if let seedUnwrapped = seed {
+            return await sample(
+                { (x: [Double]) -> Double in
+                    wavefunction(x.first!, x.last!) ** 2
+                },
+                nSamples,
+                nParts: nParts,
+                from: from,
+                to: to ?? [a1, a2],
+                precision: precision,
+                seed: seedUnwrapped,
+                logger: Logger(level: .debug, label: "sampler")
+                // generator: generator
+            )
+        } else {
+             return await sample(
+                { (x: [Double]) -> Double in
+                    wavefunction(x.first!, x.last!) ** 2
+                },
+                nSamples,
+                nParts: nParts,
+                from: from,
+                to: to ?? [a1, a2],
+                precision: precision
+                // logger: Logger(label: "seedless-sampler")
+            )
+        }
         //  {
         //     return DefaultSeedableRandomNumberGenerator($0)
         // }
