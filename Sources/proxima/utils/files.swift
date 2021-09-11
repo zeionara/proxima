@@ -27,3 +27,29 @@ public func makeSureParentFoldersExist(_ path: String) throws {
     let parentFolderPath = try getParentFolderPath(path)
     try FileManager.default.createDirectory(atPath: parentFolderPath, withIntermediateDirectories: true, attributes: nil)
 }
+
+public func makeSureFileExists(_ url: URL, recreate: Bool = false) {
+    do {
+        if (!FileManager.default.fileExists(atPath: url.path) || recreate) {
+            try Data("".utf8).write(to: url)
+        }
+    } catch {
+        print("Cannot create file \(url) because of exception \(error)") 
+    }
+}
+
+
+public func makeSureFileExists(_ path: String) {
+    do{
+        try makeSureParentFoldersExist(path)
+    } catch {
+        print("Cannot create parent folders for file \(path) because of exception \(error)")
+    }
+    
+    if let fileURL = URL.local(path) { 
+        makeSureFileExists(fileURL)
+    } else {
+        print("Cannot make sure that file \(path) exists because given path is not correct")
+    }
+}
+

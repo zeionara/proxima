@@ -1,6 +1,7 @@
 import Foundation
 import nest
 import PcgRandom
+import Logging
 
 public typealias OneDimensionalSpacialWavefunction = (_ x: Double) -> Double
 public typealias TwoDimensionalSpacialWavefunction = (_ x: Double, _ y: Double) -> Double
@@ -168,7 +169,8 @@ public struct TwoDimensionalPotentialWellAnalyticModel {
             from: from,
             to: to ?? [a1, a2],
             precision: precision,
-            seed: seed
+            seed: seed,
+            logger: Logger(label: "Sampler")
             // generator: generator
         )
         //  {
