@@ -7,7 +7,8 @@ let package = Package(
     name: "proxima",
     dependencies: [
         .package(url: "../nest", branch: "master"),
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0")
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0")
         // .package(url: "https://github.com/paiv/swift-pcg-random.git", .upToNextMajor(from: "1.0.0"))
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
@@ -19,7 +20,8 @@ let package = Package(
             name: "proxima",
             dependencies: [
                 .product(name: "nest", package: "nest"),
-                .product(name: "Logging", package: "swift-log")
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
                 // .product(name: "PcgRandom", package: "swift-pcg-random")
             ]
         ),

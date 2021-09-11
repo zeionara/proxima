@@ -1,104 +1,90 @@
 import nest
 import Foundation
-// import PcgRandom
+import ArgumentParser
 
-// print(
-//     OneDimensionalPotentialWellAnalyticModel(length: 5).sample(10)
-// )
-
-// let foo = TwoDimensionalElectronPosition(x: 2.0, y: 5.0)
-// let bar = TwoDimensionalElectronPosition(x: 3.0, y: 4.0)
-
-// let bundle = DataBundle([foo, bar])
-
-// print(TwoDimensionalElectronPositionDataFrame(bundle).asTsv)
-
-// bundle.toTsv("assets/corpora/2d-electron-positions/data.tsv")
-
-// struct RandomNumberGeneratorWithSeed: RandomNumberGenerator {
-//     public var inverse: Bool
+struct Sample: ParsableCommand {
+    @Flag(name: .shortAndLong, help: "Discard contents of existing log file if any")
+    var discardExistingLogFile = false
     
-//     init(seed: Int, inverse: Bool = true) {
-//         self.inverse = inverse // if inverse == false then returned results are not exceptionally different from each other
-//         srand48(seed)
-//     }
-    
-//     func next() -> UInt64 {
-//         let number = drand48()
-//         print(number)
-//         // print("Input number: ", number)
-//         let result = withUnsafeBytes(of: number) { bytes -> UInt64 in
-//             if inverse {
-//                 let bytt: [UInt8] = Array(bytes)
-//                 print(bytes)
-//                 print(bytt)
-//                 return UnsafeRawPointer(bytt).assumingMemoryBound(to: UInt64.self).pointee.bigEndian
-//             }
-//             let loadedBytes = bytes.load(as: UInt64.self)
-//             return loadedBytes
-//         }
-//         // print(result)
-//         return result
-//     }
-// }
+    @Option(name: .shortAndLong, help: "Name of logfile (if omitted then logs are written only to the standard output)")
+    var logFilePath: String?
 
-// func generate<T: RandomNumberGenerator>(_ generator: T?) -> Double {
-//     if var generator_ = generator {
-//         return Double.random(in: 0...1, using: &generator_)
-//     }
-//     return Double.random(in: 0...1)
-// }
+    @Option(name: .shortAndLong, help: "Number of samples to generate as command output")
+    var nSamples: Int
 
-// // var generator = RandomNumberGeneratorWithSeed(seed: 1001)
-// var generator = Pcg64Random(seed: 19)
-// for _ in 0..<10 {
-//     // print(Double.random(in: 0...1, using: &generator))
-//     print(generate(generator))
-// }
+    mutating func run() {
 
-BlockingTask {
-    measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5) {
-        // print(
-        //     await OneDimensionalPotentialWellAnalyticModel(length: 5).getSamples(100, nParts: 3)
-        // )
+        let nSamplesLocal = nSamples 
 
-        let wellModel = TwoDimensionalPotentialWellAnalyticModel(length: 2, width: 5)
-        let wavefunction = wellModel.getWaveFunction(n1: 1, n2: 1)
-        func getProbability(_ args: [Double]) -> Double {
-            return wavefunction(args.first!, args.last!) ** 2
-        }
-
-        func normalizeProbability(_ probability: Double, _ normalizationCoefficient: Double) -> Double {
-            return probability / normalizationCoefficient
-        }
-
-        // let randomizationResult = await randomize(
-        //     getProbability,
-        //     from: [0.0, 0.0],
-        //     to: [2.0, 5.0],
-        //     precision: 100,
-        //     kind: .right,
-        //     generatorKind: .ceil
-        // )
-
-        // let generator = Pcg64Random(seed: 16)
-        // print(randomizationResult)
-        let samples = await wellModel.getSamples(10, nParts: 10, precision: 100, seed: 17).map{
-            TwoDimensionalElectronPosition(x: $0.first!, y: $0.last!)
-        }.sorted{ $0.x > $1.x }
-
-        print(DataBundle(samples).asTsv) // .toTsv("assets/corpora/2d-electron-positions/data.tsv")
-        
-        // print("x\ty")
-        // for sample in samples {
-            // print("\(String(format: "%.5f", sample.first!))\t\(String(format: "%.5f", sample.last!))")
-        // }
-
-        // print(getProbability([1.0, 2.5]))
-        return nil
+        BlockingTask {
+             measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5) {
+                 let wellModel = TwoDimensionalPotentialWellAnalyticModel(length: 2, width: 5)
+                 let wavefunction = wellModel.getWaveFunction(n1: 1, n2: 1)
+                 func getProbability(_ args: [Double]) -> Double {
+                     return wavefunction(args.first!, args.last!) ** 2
+                 }
+         
+                 func normalizeProbability(_ probability: Double, _ normalizationCoefficient: Double) -> Double {
+                     return probability / normalizationCoefficient
+                 }
+         
+                 let samples = await wellModel.getSamples(nSamplesLocal, nParts: 10, precision: 100, seed: 17).map{
+                     TwoDimensionalElectronPosition(x: $0.first!, y: $0.last!)
+                 }.sorted{ $0.x > $1.x }
+         
+                 print(DataBundle(samples).asTsv) 
+                 
+                 return nil
+             }
+         }
     }
 }
 
+Sample.main()
+
+// BlockingTask {
+//     measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5) {
+//         // print(
+//         //     await OneDimensionalPotentialWellAnalyticModel(length: 5).getSamples(100, nParts: 3)
+//         // )
+// 
+//         let wellModel = TwoDimensionalPotentialWellAnalyticModel(length: 2, width: 5)
+//         let wavefunction = wellModel.getWaveFunction(n1: 1, n2: 1)
+//         func getProbability(_ args: [Double]) -> Double {
+//             return wavefunction(args.first!, args.last!) ** 2
+//         }
+// 
+//         func normalizeProbability(_ probability: Double, _ normalizationCoefficient: Double) -> Double {
+//             return probability / normalizationCoefficient
+//         }
+// 
+//         // let randomizationResult = await randomize(
+//         //     getProbability,
+//         //     from: [0.0, 0.0],
+//         //     to: [2.0, 5.0],
+//         //     precision: 100,
+//         //     kind: .right,
+//         //     generatorKind: .ceil
+//         // )
+// 
+//         // let generator = Pcg64Random(seed: 16)
+//         // print(randomizationResult)
+//         let samples = await wellModel.getSamples(10, nParts: 10, precision: 100, seed: 17).map{
+//             TwoDimensionalElectronPosition(x: $0.first!, y: $0.last!)
+//         }.sorted{ $0.x > $1.x }
+// 
+//         print(DataBundle(samples).asTsv) // .toTsv("assets/corpora/2d-electron-positions/data.tsv")
+//         
+//         // print("x\ty")
+//         // for sample in samples {
+//             // print("\(String(format: "%.5f", sample.first!))\t\(String(format: "%.5f", sample.last!))")
+//         // }
+// 
+//         // print(getProbability([1.0, 2.5]))
+//         return nil
+//     }
+// }
+// 
 // measureExecutionTime("sphere volume computation using hardcoded implementation") {
 //     print(
 //         computeSphereVolumeUsingCartesianSystem(
