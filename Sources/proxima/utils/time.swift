@@ -194,13 +194,13 @@ public struct FileLogHandler: LogHandler {
 
 
 
-public func measureExecutionTime(_ label: String, accuracy: Int = 3, apply closure: @escaping () async -> String?) {
+public func measureExecutionTime(_ label: String, accuracy: Int = 3, verbose: Bool = false, apply closure: @escaping () async -> String?) {
     let group = DispatchGroup()
     group.enter(1)
     let start = DispatchTime.now()
 
     Task {
-        let logger = Logger(level: .trace, label: "execution-time-measuring")
+        let logger = Logger(level: verbose ? .trace : .info, label: "execution-time-measuring")
         // logger.logLevel = .trace
         logger.trace("Starting \(label)...")
         let closureExecutionResult = await closure()

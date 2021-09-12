@@ -22,11 +22,19 @@ struct Sample: ParsableCommand {
     @Option(name: .shortAndLong, help: "Random numbers generator seed which allows you to guarantee the reproducibility of the results")
     var seed: Int?
 
+    @Option(name: .shortAndLong, help: "Name of the output file which keeps generated values (if ommitted then results will be written to the standard output)")
+    var outputFileName: String?
+
+    @Flag(name: .shortAndLong, help: "Should output additional log entries which are considered pretty verbose")
+    var verbose = false
+
     mutating func run() {
         let nSamplesLocal = nSamples 
         let precisionLocal = precision
         let nWorkersLocal = workers
         let seedLocal = seed
+        let verboseLocal = verbose
+        let outputFileNameLocal = outputFileName == nil ? nil : "assets/corpora/\(outputFileName!).tsv"
 
         if let logFileNameUnwrapped = logFileName {
             let path = "assets/logs/\(logFileNameUnwrapped).txt"
@@ -35,7 +43,7 @@ struct Sample: ParsableCommand {
             LoggingSystem.bootstrap{ label in
                 MultiplexLogHandler(
                     [
-                        FileLogHandler(level: .trace, label: label, path: path),
+                        FileLogHandler(level: verboseLocal ? .trace : .info, label: label, path: path),
                         StreamLogHandler.standardOutput(label: label)
                     ]
                 )
@@ -43,7 +51,7 @@ struct Sample: ParsableCommand {
         }
         
         BlockingTask {
-             measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5) {
+             measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5, verbose: verboseLocal) {
                  let wellModel = TwoDimensionalPotentialWellAnalyticModel(length: 2, width: 5)
                  let wavefunction = wellModel.getWaveFunction(n1: 1, n2: 1)
                  func getProbability(_ args: [Double]) -> Double {
@@ -54,12 +62,16 @@ struct Sample: ParsableCommand {
                      return probability / normalizationCoefficient
                  }
          
-                 let samples = await wellModel.getSamples(nSamplesLocal, nParts: nWorkersLocal, precision: precisionLocal, seed: seedLocal).map{
+                 let samples = await wellModel.getSamples(nSamplesLocal, nParts: nWorkersLocal, precision: precisionLocal, seed: seedLocal, verbose: verboseLocal).map{
                      TwoDimensionalElectronPosition(x: $0.first!, y: $0.last!)
-                 }.sorted{ $0.x > $1.x }
-         
-                 print(DataBundle(samples).asTsv) 
-                 
+                 }         
+
+                 let bundle = DataBundle(seedLocal == nil ? samples : samples.sorted{ $0.x < $1.x }) 
+                 if let outputFileNameLocalUnwrapped = outputFileNameLocal {
+                     bundle.toTsv(outputFileNameLocalUnwrapped)
+                 } else {
+                     print(bundle.asTsv)
+                 }
                  return nil
              }
          }

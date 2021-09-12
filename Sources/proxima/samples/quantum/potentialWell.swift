@@ -156,7 +156,7 @@ public struct TwoDimensionalPotentialWellAnalyticModel {
     // }
 
     public func getSamples(_ nSamples: Int, nParts: Int, n1: Int = 1, n2: Int = 1,
-        from: [Double] = [0.0, 0.0], to: [Double]? = .none, precision: Int = 10000, seed: Int? = nil
+        from: [Double] = [0.0, 0.0], to: [Double]? = .none, precision: Int = 10000, seed: Int? = nil, verbose: Bool = false
     ) async -> [[Double]] {
         let wavefunction = getWaveFunction(n1: n1, n2: n2)
 
@@ -171,7 +171,7 @@ public struct TwoDimensionalPotentialWellAnalyticModel {
                 to: to ?? [a1, a2],
                 precision: precision,
                 seed: seedUnwrapped,
-                logger: Logger(level: .debug, label: "sampler")
+                logger: Logger(level: verbose ? .trace : .info, label: "sampler")
                 // generator: generator
             )
         } else {
