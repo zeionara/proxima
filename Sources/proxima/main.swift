@@ -36,6 +36,8 @@ struct Sample: ParsableCommand {
         let verboseLocal = verbose
         let outputFileNameLocal = outputFileName == nil ? nil : "assets/corpora/\(outputFileName!).tsv"
 
+        let vector = Matrix([Vector(elements: [1.0, 0.0]), Vector(elements: [0.0, 2.0])]).apply(Vector(elements: [1.0, 1.1]))
+        print(vector)
         if let logFileNameUnwrapped = logFileName {
             let path = "assets/logs/\(logFileNameUnwrapped).txt"
             
