@@ -28,6 +28,14 @@ extension Vector where Element == Double {
     public var normalized: Vector {
         return Vector(elements: elements.map{ $0 / norm })
     }
+
+    public static func .*(lhs: Vector<Element>, rhs: Vector<Element>) -> Element {
+        assert(!lhs.columnar && rhs.columnar)
+        assert(lhs.elements.count == rhs.elements.count)
+        return (0..<lhs.elements.count).map{
+            lhs.elements[$0] * rhs.elements[$0]
+        }.reduce(0, +)
+    } 
 }
 
 
@@ -55,8 +63,12 @@ public struct Matrix<Element: Numeric>: Operator where Element: CVarArg {
     }
 
     public static func .*(lhs: Matrix<Element>, rhs: Vector<Element>) -> Vector<Element> {
-        lhs.apply(rhs) 
+        assert(rhs.columnar) // Row-vectors cannot be multiplied by matrix because number of columns in one object and number of rows in the other may not differ
+        assert(rhs.elements.count == lhs.elements.first!.elements.count)
+        return lhs.apply(rhs) 
     } 
+
+
 }
 
 extension Matrix: CustomStringConvertible {
