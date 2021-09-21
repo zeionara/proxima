@@ -1,3 +1,5 @@
+import Foundation
+
 infix operator .*: MultiplicationPrecedence // Dot product operator which is generally defined as tensor-to-tensor multiplications
 
 public struct Vector<Element: Numeric>: Operable where Element: CVarArg {
@@ -11,7 +13,23 @@ public struct Vector<Element: Numeric>: Operable where Element: CVarArg {
         self.elements = elements
         self.columnar = columnar
     }
+
 }
+
+extension Vector where Element == Double {
+    public var norm: Element {
+        let squares: [Element] = elements.map{
+            pow($0, 2.0)
+        }
+        let reducedSum: Double = squares.reduce(0, +)
+        return reducedSum.squareRoot()
+    }
+
+    public var normalized: Vector {
+        return Vector(elements: elements.map{ $0 / norm })
+    }
+}
+
 
 extension Vector: CustomStringConvertible {
     public var description: String {
@@ -59,4 +77,20 @@ public func transformVector<Element: Numeric>(_ matrix: Matrix<Element>, _ vecto
    } 
 
    return Vector(elements: elements)
+}
+
+public struct LinearEigensolver: Eigensolver {
+    public typealias OperatorType = Matrix<Double>
+
+    public func solve(_ solvedOperator: OperatorType?, nIterations: Int = 5) -> Array<EigenPair<OperatorType.OperableType>> {
+        assert(nIterations > 0)
+        let unwrappedOperator = solvedOperator!
+        var currentEstimation = unwrappedOperator.elements.first!
+        var eigenValueEstimation: Double = 1.0
+        for _ in 0...nIterations {
+            currentEstimation = (unwrappedOperator .* currentEstimation).normalized
+            eigenValueEstimation = (unwrappedOperator .* currentEstimation).elements.first! / currentEstimation.elements.first! 
+        }
+        return [EigenPair(vector: currentEstimation, value: eigenValueEstimation)]
+    }
 }

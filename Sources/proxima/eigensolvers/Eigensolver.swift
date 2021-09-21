@@ -13,6 +13,6 @@ public protocol Operator {
 public protocol Eigensolver {
     associatedtype OperatorType: Operator
 
-    func solve<PairOperableType>(_ operator: OperatorType?) -> Array<EigenPair<PairOperableType>> where PairOperableType == OperatorType.OperableType
+    func solve<PairOperableType>(_ solvedOperator: OperatorType?, nIterations: Int) -> Array<EigenPair<PairOperableType>> where PairOperableType == OperatorType.OperableType
 }
 

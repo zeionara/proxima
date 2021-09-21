@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "proxima",
     dependencies: [
-        .package(url: "https://github.com/zeionara/nest", branch: "master"),
+        .package(url: "../nest", branch: "master"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0")
         // .package(url: "https://github.com/paiv/swift-pcg-random.git", .upToNextMajor(from: "1.0.0"))
