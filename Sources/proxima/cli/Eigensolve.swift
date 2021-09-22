@@ -35,7 +35,8 @@ public struct Eigensolve: ParsableCommand {
     mutating public func run() {
         // print("matrix multiplication demo: ")
         // let matrix = Matrix([Vector(elements: [1.0, 0.0], columnar: false), Vector(elements: [0.0, 2.0], columnar: false)])
-        let matrix = Matrix([Vector(elements: [1.1, 2.0], columnar: false), Vector(elements: [0.7, 2.7], columnar: false)])
+        // let matrix = Matrix([Vector(elements: [1.1, 2.0], columnar: false), Vector(elements: [0.7, 2.7], columnar: false)])
+        let matrix = Matrix([Vector(elements: [1.0, 1.0, 0.0], columnar: false), Vector(elements: [1.0, 0.0, 1.0], columnar: false), Vector(elements: [0.0, 1.0, 1.0], columnar: false)])
         // let solver = LinearEigensolver()
         // let solution = solver.solve(matrix, nIterations: accuracy)
         // let inputVector = Vector(elements: [1.0, 1.1])
@@ -46,6 +47,11 @@ public struct Eigensolve: ParsableCommand {
         let bar = Vector(elements: [2.0, 1.0], columnar: true)
 
         print("\(foo) * \(bar) = \(foo .* bar)")
-        print("QR decomposition of \(matrix) is \(matrix.qrDecomposition)")
+        let decomposition = matrix.qrDecomposition
+        print("QR decomposition of \(matrix) is \(decomposition)")
+        print("Restored matrix: \(decomposition.q .* decomposition.r)")
+
+        let solver = QRSolver()
+        print("One of eigenvalues for matrix \(matrix) is \(solver.solve(matrix, nIterations: accuracy).first!.value)")
     }
 }
