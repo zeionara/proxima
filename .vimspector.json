@@ -1,0 +1,13 @@
+{
+  "configurations": {
+    "launch": {
+      "adapter": "CodeLLDB",
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/.build/debug/proxima",
+        "args": [ "eigen", "-a", "1" ]
+      }
+    }
+  }
+}
+
