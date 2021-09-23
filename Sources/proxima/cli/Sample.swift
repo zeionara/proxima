@@ -36,20 +36,8 @@ public struct Sample: ParsableCommand {
         let verboseLocal = verbose
         let outputFileNameLocal = outputFileName == nil ? nil : "assets/corpora/\(outputFileName!).tsv"
 
-        if let logFileNameUnwrapped = logFileName {
-            let path = "assets/logs/\(logFileNameUnwrapped).txt"
-            
-            makeSureFileExists(path, recreate: discardExistingLogFile)
-            LoggingSystem.bootstrap{ label in
-                MultiplexLogHandler(
-                    [
-                        FileLogHandler(level: verboseLocal ? .trace : .info, label: label, path: path),
-                        StreamLogHandler.standardOutput(label: label)
-                    ]
-                )
-            }
-        }
-        
+        setupLogging(path: logFileName, verbose: verboseLocal, discardExistingLogFile: discardExistingLogFile) 
+
         BlockingTask {
              measureExecutionTime("samples generation for 2d model of electrons in a potential well", accuracy: 5, verbose: verboseLocal) {
                  let wellModel = TwoDimensionalPotentialWellAnalyticModel(length: 2, width: 5)

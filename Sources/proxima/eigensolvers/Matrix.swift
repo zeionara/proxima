@@ -1,5 +1,15 @@
 import Foundation
 
+enum MathematicalOperationError: Error {
+    case emptyObject(message: String)
+}
+
+public func assertOrThrow<ErrorType: Error>(condition: Bool, makeError: () -> ErrorType) throws {
+    if (!condition) {
+        throw makeError()
+    }
+}
+
 infix operator .*: MultiplicationPrecedence // Dot product operator which is generally defined as tensor-to-tensor multiplications
 
 extension Array where Element == Array<Double> {
@@ -64,8 +74,11 @@ public struct Matrix<Element: Numeric>: Operator where Element: CVarArg {
     }
 
     public var diagonal: OperableType {
-        // TODO: Implement error handling for empty matrices
-        Vector(
+        if (elements.count < 1) {
+           return Vector([])
+        } 
+
+        return Vector(
             (0..<self.elements.first!.elements.count).map{
                 self.elements[$0].elements[$0]
             }
