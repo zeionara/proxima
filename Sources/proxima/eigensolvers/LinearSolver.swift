@@ -21,17 +21,27 @@ public struct QRSolver: Eigensolver {
 
     public func solve(_ solvedOperator: OperatorType?, nIterations: Int = 5) -> Array<EigenPair<OperatorType.OperableType>> {
         assert(nIterations >= 0)
+        let unwrappedSolvedOperator = solvedOperator!
 
-        var qrDecomposition = solvedOperator!.qrDecomposition
+        // Find eigenvalues
+
+        var qrDecomposition = unwrappedSolvedOperator.qrDecomposition
 
         for _ in 0..<nIterations {
             qrDecomposition = (qrDecomposition.r .* qrDecomposition.q).qrDecomposition
         }
 
-        return zip(
-            qrDecomposition.q.columns, 
-            (qrDecomposition.q .* qrDecomposition.r).diagonal.elements
-        ).map { (eigenvector, eigenvalue) in
+        let eigenvalues = (qrDecomposition.q .* qrDecomposition.r).diagonal.elements
+
+        // Find eigenvectors
+
+        qrDecomposition = solvedOperator!.qrDecomposition
+
+        for _ in 0..<nIterations {
+            qrDecomposition = (unwrappedSolvedOperator .* qrDecomposition.q).qrDecomposition
+        }
+
+        return zip(qrDecomposition.q.columns, eigenvalues).map { (eigenvector, eigenvalue) in
             EigenPair(vector: eigenvector, value: eigenvalue)
         } 
     }
