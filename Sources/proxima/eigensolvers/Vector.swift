@@ -6,14 +6,14 @@ public struct Vector<Element: Numeric>: Operable where Element: CVarArg {
     public let elements: [Scalar]
     public let columnar: Bool
 
-    public init(elements: [Scalar], columnar: Bool = true) {
+    public init(_ elements: [Scalar], columnar: Bool = true) {
         assert(elements.count > 0)
         self.elements = elements
         self.columnar = columnar
     }
 
     public var T: Self {
-        return Self(elements: elements, columnar: !columnar)
+        return Self(elements, columnar: !columnar)
     }
 }
 
@@ -27,7 +27,7 @@ extension Vector where Element == Double {
     }
 
     public var normalized: Vector {
-        return Vector(elements: elements.map{ $0 / norm })
+        return Vector(elements.map{ $0 / norm })
     }
 
     public static func .*(lhs: Vector<Element>, rhs: Vector<Element>) -> Element {
@@ -42,7 +42,7 @@ extension Vector where Element == Double {
         assert(lhs.columnar == rhs.columnar)
         assert(lhs.elements.count == rhs.elements.count)
         return Vector<Element>(
-            elements: (0..<lhs.elements.count).map{ lhs.elements[$0] - rhs.elements[$0] },
+            (0..<lhs.elements.count).map{ lhs.elements[$0] - rhs.elements[$0] },
             columnar: lhs.columnar
         )
     }
@@ -52,7 +52,7 @@ extension Vector where Element == Double {
         assert(lhs.columnar == rhs.columnar)
         assert(lhs.elements.count == rhs.elements.count)
         return Vector<Element>(
-            elements: (0..<lhs.elements.count).map{ lhs.elements[$0] * rhs.elements[$0] },
+            (0..<lhs.elements.count).map{ lhs.elements[$0] * rhs.elements[$0] },
             columnar: lhs.columnar
         )
     }
@@ -61,7 +61,7 @@ extension Vector where Element == Double {
         assert(lhs.columnar == rhs.columnar)
         assert(lhs.elements.count == rhs.elements.count)
         return Vector(
-            elements: (0..<lhs.elements.count).map{ lhs.elements[$0] + rhs.elements[$0] },
+            (0..<lhs.elements.count).map{ lhs.elements[$0] + rhs.elements[$0] },
             columnar: lhs.columnar
         )
     }
@@ -71,21 +71,21 @@ extension Vector where Element == Double {
         assert(lhs.columnar == rhs.columnar)
         assert(lhs.elements.count == rhs.elements.count)
         return Vector(
-            elements: (0..<lhs.elements.count).map{ lhs.elements[$0] / rhs.elements[$0] },
+            (0..<lhs.elements.count).map{ lhs.elements[$0] / rhs.elements[$0] },
             columnar: lhs.columnar
         )
     }
 
     public static func /(lhs: Vector<Element>, rhs: Element) -> Vector<Element> {
         return Vector(
-            elements: (0..<lhs.elements.count).map{ lhs.elements[$0] / rhs },
+            (0..<lhs.elements.count).map{ lhs.elements[$0] / rhs },
             columnar: lhs.columnar
         )
     }
 
     public static func *(lhs: Element, rhs: Vector<Element>) -> Vector<Element> {
         return Vector(
-            elements: (0..<rhs.elements.count).map{ rhs.elements[$0] * lhs },
+            (0..<rhs.elements.count).map{ rhs.elements[$0] * lhs },
             columnar: rhs.columnar
         )
     }
@@ -97,3 +97,4 @@ extension Vector: CustomStringConvertible {
         "( \( self.elements.map{ String(format: "%.3f", $0) }.joined(separator: ", ") ) )" + (columnar ? " ^ T " : "")
     }
 }
+

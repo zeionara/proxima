@@ -31,7 +31,7 @@ public struct Matrix<Element: Numeric>: Operator where Element: CVarArg {
         assert(rawElements.count > 0)
         
         self.elements = rawElements.map{
-            Vector(elements: $0, columnar: false)
+            Vector($0, columnar: false)
         }
     }
 
@@ -59,8 +59,17 @@ public struct Matrix<Element: Numeric>: Operator where Element: CVarArg {
         } 
 
         return columnData.map{
-            OperableType(elements: $0, columnar: true)
+            OperableType($0, columnar: true)
         }
+    }
+
+    public var diagonal: OperableType {
+        // TODO: Implement error handling for empty matrices
+        Vector(
+            (0..<self.elements.first!.elements.count).map{
+                self.elements[$0].elements[$0]
+            }
+        )
     }
 }
 
@@ -81,7 +90,7 @@ public func transformVector<Element: Numeric>(_ matrix: Matrix<Element>, _ vecto
         )
    } 
 
-   return Vector(elements: elements)
+   return Vector(elements)
 }
 
 public typealias QRFactorizationResult<Element: Numeric> = (q: Matrix<Element>, r: Matrix<Element>) where Element: CVarArg
@@ -107,42 +116,34 @@ extension Matrix where Element == Double {
             let u = column - (0..<i).map{
                 let scale: Element = (column.T .* normalizedFactors[$0])
                 triangularMatrixColumnData.append(scale) 
-
-                print("scale\(i)\($0) = \(columns[$0]) * \(normalizedFactors[$0]) = \(scale)")
                 return scale * normalizedFactors[$0]
             }.reduce(
-                Vector(elements: Array(repeating: 0.0, count: elements.first!.elements.count), columnar: true),
+                Vector(Array(repeating: 0.0, count: elements.first!.elements.count), columnar: true),
                 +
             )
 
-            print("u\(i) = \(u)")
-
             let e = u / u.norm
 
-            print("e\(i) = \(e)")
             triangularMatrixColumnData.append(column.T .* (u / u.norm))
             for _ in 0..<column.elements.count - triangularMatrixColumnData.count {
                triangularMatrixColumnData.append(0.0)
             } 
 
-            triangularMatrixColumns.append(Vector(elements: triangularMatrixColumnData, columnar: true)) 
+            triangularMatrixColumns.append(Vector(triangularMatrixColumnData, columnar: true)) 
             normalizedFactors.append(e)
         }
 
-        // print("q contents before transposing: \(normalizedFactors.map{$0.elements})")
-        // print("q contents after transposing: \(normalizedFactors.map{$0.elements}.T)")
         let postProcessedNormalizedFactors: [OperableType] = normalizedFactors.map{$0.elements}.T.map{
-            print($0)
-            return Vector(elements: $0, columnar: false)
+            return Vector($0, columnar: false)
         }
-        // print("Post processed q contents: \(postProcessedNormalizedFactors)")
+
         return QRFactorizationResult(
             q: Matrix(
                 postProcessedNormalizedFactors
             ),
             r: Matrix(
                 triangularMatrixColumns.map{$0.elements}.T.map{
-                    Vector(elements: $0, columnar: false)
+                    Vector($0, columnar: false)
                 }
             )
         )

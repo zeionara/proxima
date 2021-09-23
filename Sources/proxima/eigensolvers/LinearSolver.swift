@@ -28,6 +28,11 @@ public struct QRSolver: Eigensolver {
             qrDecomposition = (qrDecomposition.r .* qrDecomposition.q).qrDecomposition
         }
 
-        return [EigenPair(vector: OperatorType.OperableType(elements: [1.0]), value: (qrDecomposition.q .* qrDecomposition.r).elements[0].elements[0])]
+        return zip(
+            qrDecomposition.q.columns, 
+            (qrDecomposition.q .* qrDecomposition.r).diagonal.elements
+        ).map { (eigenvector, eigenvalue) in
+            EigenPair(vector: eigenvector, value: eigenvalue)
+        } 
     }
 }
