@@ -7,7 +7,7 @@ struct Proxima: ParsableCommand {
     static var configuration = CommandConfiguration(
         abstract: "A tool for approximate quantum systems analysis",
         version: "0.0.7",
-        subcommands: [Sample.self, Eigensolve.self],
+        subcommands: [Sample.self, Eigensolve.self, Gravitate.self],
         defaultSubcommand: Sample.self
     )
 }
